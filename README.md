@@ -1,0 +1,2 @@
+# GitPracticeForDeOps
+Practicing the DevOps 
