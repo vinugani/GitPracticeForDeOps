@@ -1,0 +1,295 @@
+*****************************Basics And Run Containers*****************************************************************
+
+# docker info (get the docker info of the present docker host)
+
+***To run the docker container
+
+#docker run hello-world (or) #docker container run hello-world
+
+#docker container run --publish 80:80 nginx
+
+#docker container run -d --publish 80:80 nginx(-d or --detach will run the container in background)\
+
+
+List Running Containers
+
+#docker container ls
+
+#docker ps
+
+
+
+******Container********
+
+Container is an running instance of an Image
+
+*****Image********************
+Image is the Application we want to run
+
+Stop Container : # docker container stop nginx
+start Container : # docker container start nginx
+
+#dokcer container ls
+#docker ls -a
+
+**********Container Name*****************
+
+# docekr container run --publish 80:80 --detach --name nginx_test nginx
+#docker container log nginx_test    (container ID / Container_Name)
+
+*******See the process running inside the container********
+
+#docker container top nginx_test (container_ID/Container_Name)
+
+*******Remove all the unused Containers************
+#docker containers rm <container ID>  --- can remove container in stop mode 
+
+#docker container rm -f <container_ID>  -----remove container forcefully while running in the docker 
+
+
+************************Containers Are NOt VM's*************************************
+-> Containers are just processes
+-> Containers are limited resources they can access
+-> containers exit when process exit
+
+
+
+************************************************CLI Monitoring And Inspection*************************************************
+
+****What going on Inside the Running Containers*******
+-> Docker container top : process list in one container
+-> docker container inspect : Details of one container config
+-> Docker container stats : Performance state on all containers
+
+#docker container inspect <container_ID/container_Name>
+
+#docker container stats
+
+**************Start Container in INspective Mode*******************
+-> getting Inside the container and Modify if required
+-> Open container Terminal
+-> Exit Container Terminal
+
+#docker container run -it : Run container in Interactivity
+
+# docerk container run -it --name wenproxy nginx bash
+
+*******Getting inside the running containers and Execute commands***********
+
+# docker container run -it --name nginxweb nginx bash  (Newly creating Container)
+
+# docer exec -it nginxweb (already running container adn we have to go the shell)
+
+
+
+*******************************************************Docker Networking***********************************************************
+
+-> Each container connect to Virtual Private network called "private"
+
+-> Bridge : This is default Network driven of Docker
+
+-> All containers on same bridge can communicate each other with-out -p(port)
+
+-> Docker NEtwork is easy to Plugged-i Containers
+-> Users is allow  to Create Multiple VPN
+-> Create Multiple Rules for Dingle Network
+
+
+-> Attach Multiple containers one Network, and Attach Single container to more than one Network or no need to attach any network to containers.
+
+
+  ***Find the Docker Container IP*****
+  #docker inspect <coktainer_ID/COntainer_Name>
+		(or)
+
+#docker container inspect <COntainer_ID/Container_Name)
+
+****************Docker Network*********************
+-> Show All Network
+
+# docker network ls   (list out the network in all docker )
+
+#docker network ls -f driver=bridge
+
+*****Docker Network Inspect*************
+
+#docker network inspect <Network_ID>
+
+
+*********************************Docker Network: Create Connect And DisConnect Network*******************
+-> Create New Network
+#docker network create my_network
+
+#docker network inspect my_network
+
+-> Connect Network with container
+# docker container run -d --name my-nginx --network my_network nginx
+
+#docker container inspect mu-nginx
+
+-> To assign the network in running contaienr
+
+#docker network connect my_network <container_id/COntainer_Name>
+
+-> To disconnect the network 
+
+#docker network disconnect bride <container_id/Container_Name>
+
+*******Dokcer Network DNS Concepts*********
+
+#docker container exec -it mynginx1 ping mynginx2
+
+#docker container exec -it mynginx ping mynginx1
+
+-> In the above  commands are same we have to create two Containers and we have to ping the Onced contaier to another 
+
+*****login to the Docker HUb using CLI*********
+#docker login
+username :
+password:
+
+we have to push an image into Docker hub
+
+#docker image push vinay/ubuntu ---it will accept (by direct ubuntu name not accepted because docker-hub only accept direct names only for Official Releases of companies)
+
+*************************Docker Container Images : Build Images****************************************
+
+#dokcer build -f <path of docker file in our local host>
+
+*************Docker File Instructions*****************
+
+-> Dokcer file instructions are used to create the Dokcer Image
+
+(1) FROM: The FROM instruction initialize a new build stage and sets the Base Image from Subsequent instructions
+	
+	FROM <image>[:tag]
+
+(2)LABEL : added to image to organize images by project record licensing information
+
+	LABEL com.example version="0.0.1-beta"
+	LABEL vendor-"vinay Sai"
+
+(3) RUN : RUN instruction will execute any commands in an new layer on top of a current image and commit the results
+
+	FROM ubuntu:14.04
+	RUN apt-get update
+	RUN apt-get install -y curl
+
+(4) CMD: CMD instruction should be used to run the softwatre contained by your image, along with any arguments
+
+	CMD ["executable","param1","param2"]
+
+(5) EXPOSE: Expose instruction indicates the ports on which a container listen for connections
+
+	EXPOSE <port>
+
+(6) ENV : ENV instruction sets the environment variable <key< to the value <value>
+
+(7) ADD : ADD instruction copies new files, directories or remove files URL's from <src> and add them to the filesystem of the image at the path <dest>
+	
+	ADD home* /mydir/
+
+(8) VOLUME: VOLUME instruction should be used to expose any databases storage area, configuration storage, or file/folder created by your docekr container
+
+(9) WORKDIR: WORKDIR instruction sets the working directory for any RUN,CMD,ADD instruction that follow it in the DOckerFile
+
+
+
+***************DOCKERFILE***************************
+
+FROM ubuntu:latest
+
+LABEL version:"0.0.1"
+LABEL maintainer="vinaysaiamarapu628@gmail.com"
+
+RUN apt-get update && apt-get upgrade -y
+RUN apt-get install nginx -y
+
+EXPOSE 90
+
+CMD ["nginx","-g","daemon off"]
+
+
+
+***************running Docker file**********
+
+#docker image build -t custom_nginx:0.0.1 /home/ubuntu/DOckerDir/
+####We have to mention the directory not a file
+
+#docker run -d -p 4444:90 custom_nginx:0.0.1
+
+
+
+################Another DOKCERFILE########################
+
+FROM nginx:latest
+
+LABEL version:"0.0.1"
+LABEL maintainer="vinaysaiamarapu628@gmail.com"
+
+WORKDIR /usr/share/nginx/html   #Updating the Working Directory
+
+#Replace INdex.html with custom file
+
+COPY index.html index.html
+
+#docker image build -t nginx-custom:0.0.1 /
+
+
+
+
+
+##############################Docker Data Management####################################
+
+(1) VOLUME
+(2) BIND Mounts
+
+###########VOLUME################
+Data Volume:
+
+VOLUMES: Volumes are stored in a part of the host filesystem which is managed by docker
+
+-> Volumes are created and managed by containers
+-> Volumes are created by "VOLUME" command in DOkcer file
+-> When you create a volume, it is stored within a directory on the Docker host machine
+-> Volumes are not be removed when user destroy the containers
+
+
+#docker run -d --name mysql_db2 -e MYSQL_ALLOW_EMPTY_PASSWORD=true --mount source=mysql-db, destination=/var/lib/mysql mysql
+
+#docker volume ls
+
+####################BIND VOLUME###################
+
+-> Bind Mount : Bind mount means a file or directory on the host machine is mounted into a countainers
+
+-> Mapping of HOst-files into a container files
+
+-> "Bind Mounts" may be stored anywhare on the host system
+
+-> Non-Docker processes on the Docker host or a Docker container can modify them at any time
+
+-> Bind Mount can't be use in DockerFile
+
+Sharing Configuration files from th host machine to containers
+
+#docker container run -d --name nginxbind --mount type=bind, source=($PWD),target=/app nginx
+
+#docker ps
+
+docker inspect nginxbind
+
+***********************************************************************************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
